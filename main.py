@@ -116,9 +116,9 @@ for section in config.sections():
     }
 
 for key, value in settings.items():
-    asset = asset.lower()
-    inet = inet.lower()
-    ifForward = ifForward
+    asset = value["asset"].lower()
+    inet = value["inet"].lower()
+    ifForward = value["forward"]
 
     if inet == "ipv4":
         header = "iptables"
