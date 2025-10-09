@@ -99,21 +99,26 @@ for section in config.sections():
     except Exception as e:
         print(f"The config {section} is missing asset, inet or forward. Skipping...")
         continue
-    
-    if not asset or not inet or forward is None:
+
+    if forward is None:
+        ifForward = True
+    else:
+        ifForward = forward
+
+    if not asset or not inet:
         print(f"The configuration {section} is missing. Skipping.")
         continue
 
     settings[section] = {
-        "asset": config.get(section,"asset"),
-        "inet": config.get(section,"inet"),
-        "forward": config.getboolean(section,"forward")
+        "asset": asset.lower(),
+        "inet": inet.lower(),
+        "forward": ifForward
     }
 
 for key, value in settings.items():
-    asset = value["asset"].lower()
-    inet = value["inet"].lower()
-    ifForward = value["forward"]
+    asset = asset.lower()
+    inet = inet.lower()
+    ifForward = ifForward
 
     if inet == "ipv4":
         header = "iptables"
