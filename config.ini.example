@@ -1,0 +1,4 @@
+# [ipset name]
+# asset = AS-SET
+# inet = ipv4/ipv6
+# forward = True -> Allow(True)/Deny(False) forward to CIDR in this AS-SET, the default value is True

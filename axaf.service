@@ -1,0 +1,15 @@
+[Unit]
+Description=ax as-set filter daemon
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/axaf/daemon.py
+WorkingDirectory=/opt/axaf
+RemainAfterExit=true
+User=root
+Group=root
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

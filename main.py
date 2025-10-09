@@ -1,0 +1,140 @@
+import os,sys
+import configparser,re
+import util
+import random
+from ezipset import ezIPSet
+
+def prefixGen(asset,inet):
+    inet = inet.lower()
+    iplist = []
+    flag = ""
+    if inet == "ipv4":
+        flag = "-4"
+    elif inet == "ipv6":
+        flag = "-6"
+    else:
+        return False
+    cmd = ["bgpq4",flag,"-F","%n/%l\n",asset]
+    returns = util.runCommand(cmd)
+    for line in returns.splitlines():
+        if util.checkIP(line):
+            iplist.append(line)
+    return iplist
+
+def addFirewall(header, chainName, ipsetName, allowDeny):
+    action = ""
+
+    if allowDeny:
+        action = "ACCEPT"
+    else:
+        action = "DROP"
+
+    if util.detectChain(header,chainName):
+        clearcmd = [
+            [header, "-F", chainName],
+            [header, "-D", "FORWARD", "-j", chainName],
+            [header, "-X", chainName]]
+        for cc in clearcmd:
+            util.runCommand(cc)
+    # Clear existing rules
+
+    cmd = [[header,"-N",chainName],
+           [header,"-A","FORWARD", "-j", chainName],
+           [header, "-A", chainName, "-m", "set", "--match-set", ipsetName, "src", "-j", action]]
+
+    for item in cmd:
+        util.runCommand(item)
+
+def addIPSet(iplist, ipsetname, inet):
+    ipset = ezIPSet(raise_on_errors=False)
+    inetConvert = ""
+    
+    if inet == "ipv4":
+        inetConvert = "inet"
+    elif inet == "ipv6":
+        inetConvert = "inet6"
+    else:
+        return False
+
+    try:
+        ipset.destroy_set(ipsetname)
+        print(f"IPset {ipsetname} destroyed successfully.")
+    except Exception as e:
+        print(f"Error destroying IPset {ipsetname}: {str(e)}")
+    
+    try:
+        ipset.create_set(ipsetname, set_type="hash:net", family=inetConvert, ignore_if_exists=True)
+        print(f"IPset {ipsetname} created successfully.")
+    except Exception as e:
+        print(f"Error creating IPset {ipsetname}: {str(e)}")
+        return False
+
+    for ip in iplist:
+        if util.checkIP(ip):
+            try:
+                ipset.add_entry(ipsetname, ip)
+                print(f"Added IP {ip} to {ipsetname}.")
+            except Exception as e:
+                print(f"Error adding IP {ip} to {ipsetname}: {str(e)}")
+
+
+print(f"Welcome to AX AS-SET Filter.")
+
+if not os.path.exists(os.path.join("config.ini")):
+    print(f"Cannot find configure file. Exiting...")
+    sys.exit(1)
+
+config = configparser.ConfigParser()
+config.read(os.path.join("config.ini"))
+
+settings = {}
+util.runCommand(["iptables","-P", "FORWARD", "DROP"])
+util.runCommand(["ip6tables","-P", "FORWARD", "DROP"])
+
+for section in config.sections():
+    try:
+        asset = config.get(section,"asset")
+        inet = config.get(section,"inet")
+        forward = config.getboolean(section,"forward")
+    except Exception as e:
+        print(f"The config {section} is missing asset, inet or forward. Skipping...")
+        continue
+    
+    if not asset or not inet or forward is None:
+        print(f"The configuration {section} is missing. Skipping.")
+        continue
+
+    settings[section] = {
+        "asset": config.get(section,"asset"),
+        "inet": config.get(section,"inet"),
+        "forward": config.getboolean(section,"forward")
+    }
+
+for key, value in settings.items():
+    asset = value["asset"].lower()
+    inet = value["inet"].lower()
+    ifForward = value["forward"]
+
+    if inet == "ipv4":
+        header = "iptables"
+    elif inet == "ipv6":
+        header = "ip6tables"
+    else:
+        print(f"The inet for {asset} is not IPv4 or IPv6. Skipped.")
+        continue
+
+    chainName = f"{key}_FW"
+    ipsetName = f"{key}_NN"
+
+    prefixList = prefixGen(asset,inet)
+    if not prefixList:
+        print(f"The prefix list is empty or invalid AS-Set. Skipping...")
+        continue
+
+    addIPSet(prefixList,ipsetName,inet)
+    print(f"Prefix List has been written to IPset.")
+
+    addFirewall(header,chainName,ipsetName,ifForward)
+    print(f"Firewall rules for {asset} have been added.")
+
+print("Complete.")
