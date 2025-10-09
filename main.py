@@ -116,8 +116,8 @@ for section in config.sections():
     }
 
 for key, value in settings.items():
-    asset = value["asset"].lower()
-    inet = value["inet"].lower()
+    asset = value["asset"]
+    inet = value["inet"]
     ifForward = value["forward"]
 
     if inet == "ipv4":

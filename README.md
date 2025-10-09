@@ -5,9 +5,9 @@ AX AS-SET Filter (AXAF) - a lightweight forwarding filter based on AS-SET
 - Supported OS: Debian 11+ / Ubuntu 20.04+  
   
 ### Installation  
-*Prerequisite: Python3, python3-pip and bgpq4 is installed. To install dependencies, following command can be used:*
+*Prerequisite: Python3, python3-pip, iptables(nftables), ipset and bgpq4 is installed. To install dependencies, following command can be used:*
 ``
-    apt-get install python3 python3-pip bgpq4
+    apt-get install python3 python3-pip bgpq4 iptables ipset
 ``
 1. Clone this repo
 2. Use ``pip install -r requirements.txt`` to install dependencies
