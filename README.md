@@ -14,5 +14,5 @@ AX AS-SET Filter (AXAF) - a lightweight forwarding filter based on AS-SET
 3. Add configuration into config.ini*. For example of config.ini, please refers to [config.ini.example](https://github.com/xosadmin/axaf/blob/main/config.ini.example)  
 4. Execute ``python3 main.py`` to generate firewall rules and IP Set entries  
   
-* The ``config.ini`` should be placed in the same folder as ``main.py``.
+** The ``config.ini`` should be placed in the same folder as ``main.py``.  
 ** The ``daemon.py`` will automatically update prefix list per 24 hours (86400 seconds). You could change this value via edit this file, or manually add main.py to crontab  
