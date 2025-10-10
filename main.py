@@ -17,6 +17,8 @@ def prefixGen(asset,inet):
     cmd = ["bgpq4",flag,"-F","%n/%l\n",asset]
     returns = util.runCommand(cmd)
     for line in returns.splitlines():
+        if line == "\n":
+            continue # Skip empty line
         if util.checkIP(line):
             iplist.append(line)
     return iplist
