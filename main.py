@@ -42,7 +42,8 @@ def addFirewall(header, chainName, ipsetName, allowDeny):
 
     cmd = [[header,"-N",chainName],
            [header,"-A","FORWARD", "-j", chainName],
-           [header, "-A", chainName, "-m", "set", "--match-set", ipsetName, "src", "-j", action]]
+           [header, "-A", chainName, "-m", "set", "--match-set", ipsetName, "src", "-j", action],
+           [header, "-A", chainName, "-m", "set", "--match-set", ipsetName, "dst", "-j", action]]
 
     for item in cmd:
         util.runCommand(item)
