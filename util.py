@@ -4,7 +4,6 @@ import ipaddress
 def runCommand(cmd):
     run = subprocess.run(cmd,check=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = run.stdout.decode('utf-8')
-    print(output)
     return output
 
 def detectChain(head,chainName):
