@@ -21,14 +21,21 @@ def checkIP(ipaddr):
         ipaddress.ip_network("127.0.0.0/8"),
         ipaddress.ip_network("169.254.0.0/16"),
         ipaddress.ip_network("0.0.0.0/8"),
-        ipaddress.ip_network("224.0.0.0/4"),
+        ipaddress.ip_network("224.0.0.0/4")
     ]
     bogon_addrs_v6 = [
+        ipaddress.ip_network("0064:ff9b::/96"),
+        ipaddress.ip_network("0064:ff9b:1::/48"),
+        ipaddress.ip_network("0100::/64"),
+        ipaddress.ip_network("2001:2::/48"),
+        ipaddress.ip_network("2001:10::/28"),
+        ipaddress.ip_network("2001:db8::/32"),
+        ipaddress.ip_network("2002::/16"),
+        ipaddress.ip_network("5f00::/8"),
         ipaddress.ip_network("fc00::/7"),
-        ipaddress.ip_network("::1/128"),
         ipaddress.ip_network("fe80::/10"),
-        ipaddress.ip_network("::/128"),
-        ipaddress.ip_network("ff00::/8"),
+        ipaddress.ip_network("fec0::/10"),
+        ipaddress.ip_network("ff00::/8")
     ]
     try:
         network = ipaddress.ip_network(ipaddr, strict=False)
@@ -46,10 +53,25 @@ def checkIP(ipaddr):
                 if network.overlaps(ip6):
                     print(f"Bogon IPv6 CIDR {ipaddr} detected. Ignored.")
                     return False
-            if ipaddr != "::/0" and ipaddr != "2000::/3":
+            if ipaddr != "::/0" and ipaddr != "2000::/3" and ipaddr != "::/8":
                 return True
             else:
                 return False
     except:
         print(f"CIDR {ipaddr} is not a valid IPv4/IPv6 CIDR. Ignored.")
         return False
+
+def checkASN(asn):
+    try:
+        asn = int(asn)
+    except:
+        print(f"Invalid ASN {asn}. Ignored.")
+        return False
+    if asn < 0 or asn > 4294967295 or asn == 23456:
+        return False
+    if 64496 <= asn <= 131071:
+        return False
+    if asn >= 4200000000 and asn <= 4294967295:
+        return False
+    return True
+

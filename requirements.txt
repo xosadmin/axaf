@@ -1,2 +1,4 @@
 ezIPSet
 ipaddress
+whois
+requests

@@ -1,4 +1,8 @@
+[rpki_verify]
+enable = False -> Determine if do RPKI verify before add prefix to list
+
 # [ipset name]
+# asn = Your ASN (e.g. 123456) (only required if enable rpki verify)
 # asset = AS-SET
 # inet = ipv4/ipv6
 # forward = True -> Allow(True)/Deny(False) forward to CIDR in this AS-SET, the default value is True

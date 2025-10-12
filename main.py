@@ -3,6 +3,7 @@ import configparser,re
 import util
 import random
 from ezipset import ezIPSet
+import rpki
 
 def prefixGen(asset,inet):
     inet = inet.lower()
@@ -48,7 +49,7 @@ def addFirewall(header, chainName, ipsetName, allowDeny):
     for item in cmd:
         util.runCommand(item)
 
-def addIPSet(iplist, ipsetname, inet):
+def addIPSet(iplist, ipsetname, inet, asn=None):
     ipset = ezIPSet(raise_on_errors=False)
     inetConvert = ""
     
@@ -75,6 +76,9 @@ def addIPSet(iplist, ipsetname, inet):
     for ip in iplist:
         if util.checkIP(ip):
             try:
+                if ifEnableRPKIValid and (not rpki.checkPrefix(asn,ip.split("/")[0]) or asn is None):
+                    print(f"{ip} will not be added because of rpki verify error.")
+                    continue
                 ipset.add_entry(ipsetname, ip)
                 print(f"Added IP {ip} to {ipsetname}.")
             except Exception as e:
@@ -90,6 +94,8 @@ if not os.path.exists(os.path.join("config.ini")):
 config = configparser.ConfigParser()
 config.read(os.path.join("config.ini"))
 
+ifEnableRPKIValid = config.getboolean(section="rpki_verify",option="enable",fallback="False")
+
 settings = {}
 util.runCommand(["iptables","-P", "FORWARD", "DROP"])
 util.runCommand(["ip6tables","-P", "FORWARD", "DROP"])
@@ -99,6 +105,7 @@ for section in config.sections():
         asset = config.get(section,"asset")
         inet = config.get(section,"inet")
         forward = config.getboolean(section,"forward")
+        asn = config.get(section,"asn",fallback=None)
     except Exception as e:
         print(f"The config {section} is missing asset, inet or forward. Skipping...")
         continue
@@ -112,16 +119,22 @@ for section in config.sections():
         print(f"The configuration {section} is missing. Skipping.")
         continue
 
+    if ifEnableRPKIValid and not util.checkASN(asn):
+        print(f"The ASN is invalid. Skipping configure...")
+        continue
+
     settings[section] = {
         "asset": asset.lower(),
         "inet": inet.lower(),
-        "forward": ifForward
+        "forward": ifForward,
+        "asn": asn
     }
 
 for key, value in settings.items():
     asset = value["asset"]
     inet = value["inet"]
     ifForward = value["forward"]
+    asn = value["asn"]
 
     if inet == "ipv4":
         header = "iptables"
@@ -139,7 +152,7 @@ for key, value in settings.items():
         print(f"The prefix list is empty or invalid AS-Set. Skipping...")
         continue
 
-    addIPSet(prefixList,ipsetName,inet)
+    addIPSet(prefixList,ipsetName,inet,asn)
     print(f"Prefix List has been written to IPset.")
 
     addFirewall(header,chainName,ipsetName,ifForward)
