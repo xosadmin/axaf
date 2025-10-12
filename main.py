@@ -94,13 +94,16 @@ if not os.path.exists(os.path.join("config.ini")):
 config = configparser.ConfigParser()
 config.read(os.path.join("config.ini"))
 
-ifEnableRPKIValid = config.getboolean(section="rpki_verify",option="enable",fallback="False")
+ifEnableRPKIValid = config.getboolean(section="rpki_verify",option="enable",fallback=False)
 
 settings = {}
 util.runCommand(["iptables","-P", "FORWARD", "DROP"])
 util.runCommand(["ip6tables","-P", "FORWARD", "DROP"])
 
 for section in config.sections():
+    if section == "rpki_verify":
+        continue
+
     try:
         asset = config.get(section,"asset")
         inet = config.get(section,"inet")
