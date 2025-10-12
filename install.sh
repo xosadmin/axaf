@@ -2,6 +2,11 @@
 
 echo "Welcome to AXAF Installer."
 
+if [[ $(whoami) != "root" ]]; then
+  echo "Error: You are not using root user to run this script. Exiting..."
+  exit 1
+fi
+
 if [[ -d "/opt/axaf" ]]; then
   echo "Warning: AXAF is already installed. Press Enter to override program (configure will be preserved)."
   read cont
