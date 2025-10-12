@@ -1,4 +1,4 @@
-import os,time
+import os,sys,time
 import subprocess
 
 sleepTime = 86400
@@ -16,5 +16,6 @@ while True:
     run = subprocess.run(["python3",location],check=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = run.stdout.decode('utf-8')
     writeLog(output)
-    print("Prefix list updated.")
+    print(f"Prefix list updated. Next Sync Time: after {sleepTime} seconds.")
+    print("For the log of this update incident, please refer to /var/log/axaf.log.")
     time.sleep(sleepTime)
