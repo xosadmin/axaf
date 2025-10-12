@@ -76,7 +76,7 @@ def addIPSet(iplist, ipsetname, inet, asn=None):
     for ip in iplist:
         if util.checkIP(ip):
             try:
-                if ifEnableRPKIValid and (not rpki.checkPrefix(asn,ip.split("/")[0]) or asn is None):
+                if ifEnableRPKIValid and (not rpki.checkPrefix(asn,ip) or asn is None):
                     print(f"{ip} will not be added because of rpki verify error.")
                     continue
                 ipset.add_entry(ipsetname, ip)
