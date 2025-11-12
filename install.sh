@@ -19,7 +19,7 @@ DEBIAN_FRONTEND=noninteractive apt install iptables-persistent ipset-persistent 
 pip3 install -r requirements.txt --break-system-package
 
 echo "Copying files..."
-cp -r "*.py" /opt/axaf
+cp -r *.py /opt/axaf
 cat>>/opt/axaf/config.ini<<EOF
 [rpki_verify]
 enable = False
