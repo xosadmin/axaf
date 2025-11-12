@@ -16,7 +16,7 @@ fi
 
 echo "Installing dependencies..."
 DEBIAN_FRONTEND=noninteractive apt install iptables-persistent ipset-persistent python3 python3-pip bgpq4 -y
-pip3 -r install requirements.txt --break-system-package
+pip3 install -r requirements.txt --break-system-package
 
 echo "Copying files..."
 cp -r "*.py" /opt/axaf
