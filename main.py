@@ -1,7 +1,6 @@
 import os,sys
 import configparser,re
 import util
-import random
 from ezipset import ezIPSet
 import rpki
 

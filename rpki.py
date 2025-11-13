@@ -18,8 +18,8 @@ def checkPrefix(asn,prefix):
     print(f"Validating {prefix} with ASN {asn}")
     try:
         prefixMask = int(prefix.split("/")[1])
-        if prefixMask > 48:
-            print(f"Prefix mask is too big or it's an bogon prefix. Ignored.")
+        if prefixMask > 48 or prefixMask < 4:
+            print(f"Prefix mask is too big/small or it's an bogon prefix. Ignored.")
             return False
     except:
         print(f"Invalid prefix: {prefix}")
