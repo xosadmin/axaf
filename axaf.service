@@ -3,7 +3,7 @@ Description=ax as-set filter daemon
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /opt/axaf/daemon.py
+ExecStart=/bin/bash -c 'while true; do python3 /opt/axaf/main.py; sysctl -p; birdc c; sleep 3600; done'
 WorkingDirectory=/opt/axaf
 RemainAfterExit=true
 User=root
